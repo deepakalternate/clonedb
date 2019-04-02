@@ -1,0 +1,135 @@
+@model EditMovieViewModel
+
+@section Scripts{
+    <script src="~/js/movieviewmodels.js" asp-append-version="true"></script>
+    <script src="~/js/addmovies.js" asp-append-version="true"></script>
+}
+
+<div class="text-center">
+    <h1 class="display-4">@Model.Title</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form id="add-movie-form" data-bind="submit: submitUpdateForm">
+            
+            <div data-bind="visible: showerror" class="alert alert-danger" role="alert">
+                <span data-bind="text: errormessage"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input required="true" type="text" class="form-control" id="title" data-bind="value: movietitle" placeholder="Movie Title">
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-9">
+                        <label for="producer">Producer</label>
+                    </div>
+                    <div class="col-md-3">
+                        <a class="btn btn-success" data-toggle="modal" data-target="#add-actor-modal">Add New Producer</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7">
+                        <select required="true" data-bind="options: peoplelist, optionsValue: function(item) { return item.id }, optionsText: function(item) { return item.name }, value: producer, optionsCaption: 'Choose...'" class="form-control" id="producer">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-9">
+                        <label for="actor">Actors</label>
+                    </div>
+                    <div class="col-md-3">
+                        <a data-bind="click: addActors" class="btn btn-primary">Add Actor</a>
+                        <a class="btn btn-success" data-toggle="modal" data-target="#add-actor-modal">Add New Actor</a>
+                    </div>
+                </div>
+
+                <!-- ko foreach: actors -->
+                <div class="row">
+                    <div class="col-md-7">
+                        <select required="true" data-bind="attr: { id: 'actor-' + $index() }, options: $root.peoplelist, optionsValue: function(item) { return item.id }, optionsText: function(item) { return item.name }, value: actor, optionsCaption: 'Choose...'" class="js-actors form-control">
+                        </select>
+                    </div>
+
+                    <!-- ko if: $root.actors().length > 1 -->
+                    <div class="col-md-5">
+                        <a data-bind="click: $root.removeActor" class="btn btn-danger">Remove</a>
+                    </div>
+                    <!-- /ko -->
+                </div>
+                <!-- /ko -->
+
+            </div>
+            
+            <div class="form-group">
+                <label for="release-date">Release Date</label>
+                <input type="date" class="form-control" data-bind="value: releasedate" id="release-date">
+            </div>
+
+            <div class="form-group">
+                <label for="plot">Plot</label>
+                <textarea class="form-control" data-bind="value: plot" id="plot" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                @if (Model != null && Model.SelectedMovie != null && !string.IsNullOrEmpty(Model.SelectedMovie.PosterPath))
+                {
+                    <div class="img"><img style="height: 20%; width: 20%" class="img-thumbnail rounded" src="~/images/@Model.SelectedMovie.PosterPath" title="@Model.SelectedMovie.Title" alt="@Model.SelectedMovie.Title"/></div>
+                }
+                <label for="poster">Upload Poster:</label>
+
+                <input type="file" class="form-control-file" id="poster" accept="image/png, image/jpeg">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="add-actor-modal" tabindex="-1" role="dialog" aria-labelledby="add-actor-modal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-heading">Add Person</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="personname" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" data-bind="value: name" placeholder="Name" id="personname">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="personsex" class="col-form-label">Sex:</label>
+                        <select required="true" data-bind="options: sexes, optionsText: function(item) { return item.text }, value: sex, optionsCaption: 'Choose...'" class="form-control" id="personsex">
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dateofbirth">Date of Birth</label>
+                        <input type="date" class="form-control" data-bind="value: dob" id="dateofbirth">
+                    </div>
+                    <div class="form-group">
+                        <label for="personbio" class="col-form-label">Bio:</label>
+                        <textarea class="form-control" data-bind="value: bio" id="personbio"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closemodal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" data-bind="click: savePerson" class="btn btn-primary" >Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="serialized-movie" data-json="@Model.SerializedMovie"></div>
